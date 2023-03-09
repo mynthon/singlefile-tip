@@ -6,5 +6,8 @@
     "@rollup/plugin-terser": "^0.4.0",
     "rollup": "^3.18.0",
     "rollup-babel": "^0.6.3"
+  },
+  "scripts": {
+    "watch": "./node_modules/rollup/dist/bin/rollup -c -w"
   }
 }

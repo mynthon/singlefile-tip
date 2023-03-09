@@ -8,17 +8,16 @@ export class Positioner {
     }
 
     /** znajdź najlepsze dopasowanie elementu na ekranie */
-    findBestFit(triggerCoords, tooltip, offset, windowOffset, recommendedFits) {
-        const tooltipRect = tooltip.getBoundingClientRect();
+    findBestFit(triggerElementRect, tooltipRect, offset, windowOffset, recommendedFits) {
         let widthRadioForTopBottom = window.innerWidth / (tooltipRect.width + windowOffset + windowOffset);
         if (widthRadioForTopBottom > 1) {
             widthRadioForTopBottom = 1;
         }
-        let heightRatioForTop = triggerCoords.top / (tooltipRect.height + offset + windowOffset);
+        let heightRatioForTop = triggerElementRect.top / (tooltipRect.height + offset + windowOffset);
         if (heightRatioForTop > 1) {
             heightRatioForTop = 1;
         }
-        let heightRatioForBottom = (window.innerHeight - triggerCoords.bottom) / (tooltipRect.height + offset + windowOffset);
+        let heightRatioForBottom = (window.innerHeight - triggerElementRect.bottom) / (tooltipRect.height + offset + windowOffset);
         if (heightRatioForBottom > 1) {
             heightRatioForBottom = 1;
         }
@@ -26,11 +25,11 @@ export class Positioner {
         if (heightRatioForLeftRight > 1) {
             heightRatioForLeftRight = 1;
         }
-        let widthRatioForLeft = triggerCoords.left / (tooltipRect.width + offset + windowOffset);
+        let widthRatioForLeft = triggerElementRect.left / (tooltipRect.width + offset + windowOffset);
         if (widthRatioForLeft > 1) {
             widthRatioForLeft = 1;
         }
-        let widthRatioForRight = (window.innerWidth - triggerCoords.right) / (tooltipRect.width + offset + windowOffset);
+        let widthRatioForRight = (window.innerWidth - triggerElementRect.right) / (tooltipRect.width + offset + windowOffset);
         if (widthRatioForRight > 1) {
             widthRatioForRight = 1;
         }
@@ -71,11 +70,10 @@ export class Positioner {
     }
 
     /** Jeśli tooltip jest na górze/dole określ najlepsze położenie w poziomie */
-    calcTopBottomHorizontalPos(triggerCoords, tooltip, windowOffset) {
-        const tooltipRect = tooltip.getBoundingClientRect();
-        const tooltipInitialLeft = triggerCoords.hCenter - 0.5 * tooltipRect.width;
-        const leftSpace = triggerCoords.hCenter - windowOffset - 0.5 * tooltipRect.width;
-        const rightSpace = window.innerWidth - triggerCoords.hCenter - windowOffset - 0.5 * tooltipRect.width;
+    calcTopBottomHorizontalPos(triggerElementRect, tooltipRect, windowOffset) {
+        const tooltipInitialLeft = triggerElementRect.hCenter - 0.5 * tooltipRect.width;
+        const leftSpace = triggerElementRect.hCenter - windowOffset - 0.5 * tooltipRect.width;
+        const rightSpace = window.innerWidth - triggerElementRect.hCenter - windowOffset - 0.5 * tooltipRect.width;
         if (leftSpace >= 0 && rightSpace >= 0) {
             return tooltipInitialLeft;
         }
@@ -84,12 +82,11 @@ export class Positioner {
             : tooltipInitialLeft + rightSpace;
     }
 
-    /** Jeśli tooltip jest na lewo/prawo określ nalepsze położenie w pionie */
-    calcLeftRightVerticalPos(triggerCoords, tooltip, windowOffset) {
-        const tooltipRect = tooltip.getBoundingClientRect();
-        const tooltipInitialTop = triggerCoords.vCenter - 0.5 * tooltipRect.height;
-        const topSpace = triggerCoords.vCenter - windowOffset - 0.5 * tooltipRect.height;
-        const bottomSpace = window.innerHeight - triggerCoords.vCenter - windowOffset - 0.5 * tooltipRect.height;
+    /** Jeśli tooltip jest na lewo/prawo określ najlepsze położenie w pionie */
+    calcLeftRightVerticalPos(triggerElementRect, tooltipRect, windowOffset) {
+        const tooltipInitialTop = triggerElementRect.vCenter - 0.5 * tooltipRect.height;
+        const topSpace = triggerElementRect.vCenter - windowOffset - 0.5 * tooltipRect.height;
+        const bottomSpace = window.innerHeight - triggerElementRect.vCenter - windowOffset - 0.5 * tooltipRect.height;
         if (topSpace >= 0 && bottomSpace >= 0) {
             return tooltipInitialTop;
         }
@@ -99,35 +96,33 @@ export class Positioner {
     }
 
     /** Zwraca obiekt z ostatecznymi koordynatami tooltipa */
-    getXY(triggerCoords, tooltip, offset, windowOffset, bestFitCode) {
-        const tooltipRect = tooltip.getBoundingClientRect();
-
+    getXY(triggerElementRect, tooltipRect, offset, windowOffset, bestFitCode) {
         if (bestFitCode === 't') {
             return {
-                'x': window.scrollX + this.calcTopBottomHorizontalPos(triggerCoords, tooltip, windowOffset),
-                'y': window.scrollY + triggerCoords.top - offset - tooltipRect.height
+                'x': window.scrollX + this.calcTopBottomHorizontalPos(triggerElementRect, tooltipRect, windowOffset),
+                'y': window.scrollY + triggerElementRect.top - offset - tooltipRect.height
             }
         } else if (bestFitCode === 'b') {
             return {
-                'x': window.scrollX + this.calcTopBottomHorizontalPos(triggerCoords, tooltip, windowOffset),
-                'y': window.scrollY + triggerCoords.bottom + offset
+                'x': window.scrollX + this.calcTopBottomHorizontalPos(triggerElementRect, tooltipRect, windowOffset),
+                'y': window.scrollY + triggerElementRect.bottom + offset
             }
         } else if (bestFitCode === 'l') {
             return {
-                'x': window.scrollX + triggerCoords.left - offset - tooltipRect.width,
-                'y': window.scrollY + this.calcLeftRightVerticalPos(triggerCoords, tooltip, windowOffset)
+                'x': window.scrollX + triggerElementRect.left - offset - tooltipRect.width,
+                'y': window.scrollY + this.calcLeftRightVerticalPos(triggerElementRect, tooltipRect, windowOffset)
             }
         } else if (bestFitCode === 'r') {
             return {
-                'x': window.scrollX + triggerCoords.right + offset,
-                'y': window.scrollY + this.calcLeftRightVerticalPos(triggerCoords, tooltip, windowOffset)
+                'x': window.scrollX + triggerElementRect.right + offset,
+                'y': window.scrollY + this.calcLeftRightVerticalPos(triggerElementRect, tooltipRect, windowOffset)
             }
         }
     }
 
-    getTooltipParameters(hookElement, tooltipElement, options) {
-        const hookElementCoords = this.getBoundingClientRectExtended(hookElement);
-        const tooltipElementCoords = this.getBoundingClientRectExtended(tooltipElement)
+    getTooltipParameters(triggerElement, tooltipElement, options) {
+        const triggerElementRect = this.getBoundingClientRectExtended(triggerElement);
+        const tooltipRect = this.getBoundingClientRectExtended(tooltipElement)
         const opts = Object.assign(
             {
                 'fits': ['t', 'r', 'b', 'l'],
@@ -136,10 +131,10 @@ export class Positioner {
             }
             , options ?? {}
         );
-        const bestFit = this.findBestFit(hookElementCoords, tooltipElement, opts.offset, opts.windowOffset, opts.fits);
+        const bestFit = this.findBestFit(triggerElementRect, tooltipRect, opts.offset, opts.windowOffset, opts.fits);
 
         return Object.assign(
-            this.getXY(hookElementCoords, tooltipElement, opts.offset, opts.windowOffset, bestFit),
+            this.getXY(triggerElementRect, tooltipRect, opts.offset, opts.windowOffset, bestFit),
             { bestFit }
         );
     }

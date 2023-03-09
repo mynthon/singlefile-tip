@@ -54,8 +54,14 @@
         Lorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsum
     </div>
 
+<div id="sample">This is sample div (html element)</div>
 
+    <script type="text/javascript" src="mynthon.tipka.js"></script>
+    <script>
+      const t = new net_mynthon.Tipka();
+      //t.attach(document.getElementById('test'), 'testing text is testing.')
 
-    <script type="text/javascript" src="tipka.js"></script>
+      t.attach(document.getElementById('test'), document.querySelector('#sample'));
+    </script>
   </body>
 </html>

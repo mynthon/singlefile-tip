@@ -2,21 +2,31 @@ import babel from '@rollup/plugin-babel';
 import terser from '@rollup/plugin-terser';
 
 export default {
-  input: 'src/tipka.js',
-  output: {
-    file: 'build/tipka.js',
-    format: 'iife',
-    name: 'myModule',
-    compact: true
-  },
+  input: 'src/Tipka.js',
+  output: [
+    {
+      file: 'build/mynthon.tipka.js',
+      format: 'iife',
+      name: 'net_mynthon',
+      compact: true,
+    },
+    {
+      file: 'build/mynthon.tipka.min.js',
+      format: 'iife',
+      name: 'net_mynthon',
+      compact: true,
+      plugins: [
+        terser()
+      ],
+    },
+  ],
   plugins: [
     babel({
       babelHelpers: 'bundled',
       presets: ['@babel/preset-env']
     }),
-    //terser()
   ],
   watch: {
-    include: 'src/tipka.js'
+    include: 'src/*.js'
   }
 };

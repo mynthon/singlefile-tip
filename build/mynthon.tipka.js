@@ -1,4 +1,4 @@
-(function(){'use strict';function _classCallCheck(instance, Constructor) {
+var net_mynthon=(function(exports){'use strict';function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
   }
@@ -53,17 +53,16 @@ function _toPropertyKey(arg) {
     /** znajdź najlepsze dopasowanie elementu na ekranie */
   }, {
     key: "findBestFit",
-    value: function findBestFit(triggerCoords, tooltip, offset, windowOffset, recommendedFits) {
-      var tooltipRect = tooltip.getBoundingClientRect();
+    value: function findBestFit(triggerElementRect, tooltipRect, offset, windowOffset, recommendedFits) {
       var widthRadioForTopBottom = window.innerWidth / (tooltipRect.width + windowOffset + windowOffset);
       if (widthRadioForTopBottom > 1) {
         widthRadioForTopBottom = 1;
       }
-      var heightRatioForTop = triggerCoords.top / (tooltipRect.height + offset + windowOffset);
+      var heightRatioForTop = triggerElementRect.top / (tooltipRect.height + offset + windowOffset);
       if (heightRatioForTop > 1) {
         heightRatioForTop = 1;
       }
-      var heightRatioForBottom = (window.innerHeight - triggerCoords.bottom) / (tooltipRect.height + offset + windowOffset);
+      var heightRatioForBottom = (window.innerHeight - triggerElementRect.bottom) / (tooltipRect.height + offset + windowOffset);
       if (heightRatioForBottom > 1) {
         heightRatioForBottom = 1;
       }
@@ -71,11 +70,11 @@ function _toPropertyKey(arg) {
       if (heightRatioForLeftRight > 1) {
         heightRatioForLeftRight = 1;
       }
-      var widthRatioForLeft = triggerCoords.left / (tooltipRect.width + offset + windowOffset);
+      var widthRatioForLeft = triggerElementRect.left / (tooltipRect.width + offset + windowOffset);
       if (widthRatioForLeft > 1) {
         widthRatioForLeft = 1;
       }
-      var widthRatioForRight = (window.innerWidth - triggerCoords.right) / (tooltipRect.width + offset + windowOffset);
+      var widthRatioForRight = (window.innerWidth - triggerElementRect.right) / (tooltipRect.width + offset + windowOffset);
       if (widthRatioForRight > 1) {
         widthRatioForRight = 1;
       }
@@ -129,25 +128,23 @@ function _toPropertyKey(arg) {
     /** Jeśli tooltip jest na górze/dole określ najlepsze położenie w poziomie */
   }, {
     key: "calcTopBottomHorizontalPos",
-    value: function calcTopBottomHorizontalPos(triggerCoords, tooltip, windowOffset) {
-      var tooltipRect = tooltip.getBoundingClientRect();
-      var tooltipInitialLeft = triggerCoords.hCenter - 0.5 * tooltipRect.width;
-      var leftSpace = triggerCoords.hCenter - windowOffset - 0.5 * tooltipRect.width;
-      var rightSpace = window.innerWidth - triggerCoords.hCenter - windowOffset - 0.5 * tooltipRect.width;
+    value: function calcTopBottomHorizontalPos(triggerElementRect, tooltipRect, windowOffset) {
+      var tooltipInitialLeft = triggerElementRect.hCenter - 0.5 * tooltipRect.width;
+      var leftSpace = triggerElementRect.hCenter - windowOffset - 0.5 * tooltipRect.width;
+      var rightSpace = window.innerWidth - triggerElementRect.hCenter - windowOffset - 0.5 * tooltipRect.width;
       if (leftSpace >= 0 && rightSpace >= 0) {
         return tooltipInitialLeft;
       }
       return leftSpace < 0 ? tooltipInitialLeft - leftSpace : tooltipInitialLeft + rightSpace;
     }
 
-    /** Jeśli tooltip jest na lewo/prawo określ nalepsze położenie w pionie */
+    /** Jeśli tooltip jest na lewo/prawo określ najlepsze położenie w pionie */
   }, {
     key: "calcLeftRightVerticalPos",
-    value: function calcLeftRightVerticalPos(triggerCoords, tooltip, windowOffset) {
-      var tooltipRect = tooltip.getBoundingClientRect();
-      var tooltipInitialTop = triggerCoords.vCenter - 0.5 * tooltipRect.height;
-      var topSpace = triggerCoords.vCenter - windowOffset - 0.5 * tooltipRect.height;
-      var bottomSpace = window.innerHeight - triggerCoords.vCenter - windowOffset - 0.5 * tooltipRect.height;
+    value: function calcLeftRightVerticalPos(triggerElementRect, tooltipRect, windowOffset) {
+      var tooltipInitialTop = triggerElementRect.vCenter - 0.5 * tooltipRect.height;
+      var topSpace = triggerElementRect.vCenter - windowOffset - 0.5 * tooltipRect.height;
+      var bottomSpace = window.innerHeight - triggerElementRect.vCenter - windowOffset - 0.5 * tooltipRect.height;
       if (topSpace >= 0 && bottomSpace >= 0) {
         return tooltipInitialTop;
       }
@@ -157,42 +154,41 @@ function _toPropertyKey(arg) {
     /** Zwraca obiekt z ostatecznymi koordynatami tooltipa */
   }, {
     key: "getXY",
-    value: function getXY(triggerCoords, tooltip, offset, windowOffset, bestFitCode) {
-      var tooltipRect = tooltip.getBoundingClientRect();
+    value: function getXY(triggerElementRect, tooltipRect, offset, windowOffset, bestFitCode) {
       if (bestFitCode === 't') {
         return {
-          'x': window.scrollX + this.calcTopBottomHorizontalPos(triggerCoords, tooltip, windowOffset),
-          'y': window.scrollY + triggerCoords.top - offset - tooltipRect.height
+          'x': window.scrollX + this.calcTopBottomHorizontalPos(triggerElementRect, tooltipRect, windowOffset),
+          'y': window.scrollY + triggerElementRect.top - offset - tooltipRect.height
         };
       } else if (bestFitCode === 'b') {
         return {
-          'x': window.scrollX + this.calcTopBottomHorizontalPos(triggerCoords, tooltip, windowOffset),
-          'y': window.scrollY + triggerCoords.bottom + offset
+          'x': window.scrollX + this.calcTopBottomHorizontalPos(triggerElementRect, tooltipRect, windowOffset),
+          'y': window.scrollY + triggerElementRect.bottom + offset
         };
       } else if (bestFitCode === 'l') {
         return {
-          'x': window.scrollX + triggerCoords.left - offset - tooltipRect.width,
-          'y': window.scrollY + this.calcLeftRightVerticalPos(triggerCoords, tooltip, windowOffset)
+          'x': window.scrollX + triggerElementRect.left - offset - tooltipRect.width,
+          'y': window.scrollY + this.calcLeftRightVerticalPos(triggerElementRect, tooltipRect, windowOffset)
         };
       } else if (bestFitCode === 'r') {
         return {
-          'x': window.scrollX + triggerCoords.right + offset,
-          'y': window.scrollY + this.calcLeftRightVerticalPos(triggerCoords, tooltip, windowOffset)
+          'x': window.scrollX + triggerElementRect.right + offset,
+          'y': window.scrollY + this.calcLeftRightVerticalPos(triggerElementRect, tooltipRect, windowOffset)
         };
       }
     }
   }, {
     key: "getTooltipParameters",
-    value: function getTooltipParameters(hookElement, tooltipElement, options) {
-      var hookElementCoords = this.getBoundingClientRectExtended(hookElement);
-      this.getBoundingClientRectExtended(tooltipElement);
+    value: function getTooltipParameters(triggerElement, tooltipElement, options) {
+      var triggerElementRect = this.getBoundingClientRectExtended(triggerElement);
+      var tooltipRect = this.getBoundingClientRectExtended(tooltipElement);
       var opts = Object.assign({
         'fits': ['t', 'r', 'b', 'l'],
         'offset': 20,
         'windowOffset': 5
       }, options !== null && options !== void 0 ? options : {});
-      var bestFit = this.findBestFit(hookElementCoords, tooltipElement, opts.offset, opts.windowOffset, opts.fits);
-      return Object.assign(this.getXY(hookElementCoords, tooltipElement, opts.offset, opts.windowOffset, bestFit), {
+      var bestFit = this.findBestFit(triggerElementRect, tooltipRect, opts.offset, opts.windowOffset, opts.fits);
+      return Object.assign(this.getXY(triggerElementRect, tooltipRect, opts.offset, opts.windowOffset, bestFit), {
         bestFit: bestFit
       });
     }
@@ -212,18 +208,20 @@ function _toPropertyKey(arg) {
       if (!document.getElementById(this.id)) {
         var div = document.createElement('div');
         div.id = this.id;
-        div.style.position = 'absolute';
-        div.style.zIndex = 10000;
-        div.style.width = '400px';
-        div.style.height = '300px';
-        div.style.border = '1px solid #bbb';
         div.style.background = '#fff';
+        div.style.border = '1px solid #bbb';
         div.style.borderRadius = '5px';
         div.style.boxShadow = "#888 0px 0px 4px 0";
-        div.style.padding = "6px";
         div.style.left = '-100000px';
-        div.style.top = '-100000px';
+        div.style.maxHeight = '500px';
+        div.style.minHeight = '20px';
         div.style.opacity = 0;
+        div.style.overflow = 'auto';
+        div.style.padding = "6px";
+        div.style.position = 'absolute';
+        div.style.top = '-100000px';
+        div.style.width = '400px';
+        div.style.zIndex = 10000;
         div.addEventListener('mouseenter', function (e) {
           clearTimeout(_this.rollOutTimeoutId);
         });
@@ -256,13 +254,18 @@ function _toPropertyKey(arg) {
     }
   }, {
     key: "delayedClose",
-    value: function delayedClose() {
-      this.rollOutTimeoutId = setTimeout(this.close.bind(this), 100);
+    value: function delayedClose(delayMs) {
+      delayMs = typeof delayMs === 'number' && delayMs >= 0 ? delayMs : 100;
+      this.rollOutTimeoutId = setTimeout(this.close.bind(this), delayMs);
     }
   }, {
     key: "setText",
     value: function setText(text) {
-      this.init().getContainer().innerHTML = text;
+      if (typeof text === 'string') {
+        this.init().getContainer().innerHTML = text;
+      } else if (text instanceof HTMLElement) {
+        this.init().getContainer().appendChild(text);
+      }
     }
   }, {
     key: "getContainer",
@@ -271,16 +274,34 @@ function _toPropertyKey(arg) {
     }
   }]);
   return TipContainer;
-}();var tipex = new TipContainer();
-var pos = new Positioner();
-document.getElementById('test').addEventListener('mouseover', function (e) {
-  var xy = pos.getTooltipParameters(document.getElementById('test'), tipex.getContainer(), {
-    'fits': ['l', 'r', 't', 'r', 'b', 'l']
-  });
-  console.log(xy);
-  tipex.setText('Some text');
-  tipex.open(xy.x, xy.y);
-});
-document.getElementById('test').addEventListener('mouseout', function (e) {
-  tipex.delayedClose();
-});})();
+}();var Tipka = /*#__PURE__*/function () {
+  function Tipka() {
+    _classCallCheck(this, Tipka);
+    this.container = new TipContainer();
+    this.positioner = new Positioner();
+    this.options = {};
+  }
+  _createClass(Tipka, [{
+    key: "setOptions",
+    value: function setOptions(options) {
+      this.options = Object.assign(this.options, options !== null && options !== void 0 ? options : {});
+      return this;
+    }
+  }, {
+    key: "attach",
+    value: function attach(element, text, options) {
+      var _this = this;
+      element.addEventListener('mouseover', function (e) {
+        var xy = _this.positioner.getTooltipParameters(document.getElementById('test'), _this.container.getContainer(), {
+          'fits': ['l', 'r', 't', 'r', 'b', 'l']
+        });
+        _this.container.setText(text);
+        _this.container.open(xy.x, xy.y);
+      });
+      element.addEventListener('mouseout', function (e) {
+        _this.container.delayedClose();
+      });
+    }
+  }]);
+  return Tipka;
+}();exports.Tipka=Tipka;return exports;})({});
