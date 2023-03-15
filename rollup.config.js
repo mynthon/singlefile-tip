@@ -7,13 +7,13 @@ export default {
     {
       file: 'build/mynthon.tipka.js',
       format: 'iife',
-      name: 'net_mynthon',
+      name: 'net_mynthon_tipka',
       compact: true,
     },
     {
       file: 'build/mynthon.tipka.min.js',
       format: 'iife',
-      name: 'net_mynthon',
+      name: 'net_mynthon_tipka',
       compact: true,
       plugins: [
         terser()

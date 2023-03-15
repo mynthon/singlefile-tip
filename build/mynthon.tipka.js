@@ -1,4 +1,4 @@
-var net_mynthon=(function(exports){'use strict';function _classCallCheck(instance, Constructor) {
+var net_mynthon_tipka=(function(exports){'use strict';function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
   }

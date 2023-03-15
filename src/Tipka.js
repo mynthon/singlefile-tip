@@ -23,7 +23,7 @@ export class Tipka {
                 document.getElementById('test'),
                 this.container.getContainer(),
                 {
-                    'fits': ['l', 'r', 't', 'r', 'b', 'l']
+                    'fits': ['l', 'r', 't', 'r', 'b', 'l'],
                 }
             );
 

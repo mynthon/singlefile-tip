@@ -8,6 +8,7 @@
     "rollup-babel": "^0.6.3"
   },
   "scripts": {
-    "watch": "./node_modules/rollup/dist/bin/rollup -c -w"
+    "watch": "./node_modules/rollup/dist/bin/rollup -c -w",
+    "build": "./node_modules/rollup/dist/bin/rollup -c"
   }
 }
