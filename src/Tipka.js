@@ -10,14 +10,14 @@ export class Tipka {
 
     setOptions(options) {
         this.options = Object.assign(
-            this.options
-            , options ?? {}
+            this.options,
+            options ?? {}
         );
 
         return this;
     }
 
-    attach(element, text, options) {
+    attach(element, content, options) {
         element.addEventListener('mouseover', (e) => {
             const xy = this.positioner.getTooltipParameters(
                 document.getElementById('test'),
@@ -26,12 +26,22 @@ export class Tipka {
                     'fits': ['l', 'r', 't', 'r', 'b', 'l']
                 }
             );
-            this.container.setText(text);
+
+            if (typeof content === 'function') {
+                content(this);
+            } else {
+                this.container.setContent(content);
+            }
+
             this.container.open(xy.x, xy.y);
-        })
+        });
 
         element.addEventListener('mouseout', (e) => {
            this.container.delayedClose();
-        })
+        });
+    }
+
+    setText(content) {
+        this.container.setContent(content);
     }
 }

@@ -259,12 +259,12 @@ function _toPropertyKey(arg) {
       this.rollOutTimeoutId = setTimeout(this.close.bind(this), delayMs);
     }
   }, {
-    key: "setText",
-    value: function setText(text) {
-      if (typeof text === 'string') {
-        this.init().getContainer().innerHTML = text;
-      } else if (text instanceof HTMLElement) {
-        this.init().getContainer().appendChild(text);
+    key: "setContent",
+    value: function setContent(content) {
+      if (typeof content === 'string') {
+        this.init().getContainer().innerHTML = content;
+      } else if (content instanceof HTMLElement) {
+        this.init().getContainer().appendChild(content);
       }
     }
   }, {
@@ -289,18 +289,27 @@ function _toPropertyKey(arg) {
     }
   }, {
     key: "attach",
-    value: function attach(element, text, options) {
+    value: function attach(element, content, options) {
       var _this = this;
       element.addEventListener('mouseover', function (e) {
         var xy = _this.positioner.getTooltipParameters(document.getElementById('test'), _this.container.getContainer(), {
           'fits': ['l', 'r', 't', 'r', 'b', 'l']
         });
-        _this.container.setText(text);
+        if (typeof content === 'function') {
+          content(_this);
+        } else {
+          _this.container.setContent(content);
+        }
         _this.container.open(xy.x, xy.y);
       });
       element.addEventListener('mouseout', function (e) {
         _this.container.delayedClose();
       });
+    }
+  }, {
+    key: "setText",
+    value: function setText(content) {
+      this.container.setContent(content);
     }
   }]);
   return Tipka;

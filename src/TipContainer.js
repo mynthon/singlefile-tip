@@ -67,11 +67,11 @@ export class TipContainer {
         this.rollOutTimeoutId = setTimeout(this.close.bind(this), delayMs)
     }
 
-    setText(text) {
-        if (typeof text === 'string') {
-            this.init().getContainer().innerHTML = text;
-        } else if (text instanceof HTMLElement) {
-            this.init().getContainer().appendChild(text);
+    setContent(content) {
+        if (typeof content === 'string') {
+            this.init().getContainer().innerHTML = content;
+        } else if (content instanceof HTMLElement) {
+            this.init().getContainer().appendChild(content);
         }
 
     }
