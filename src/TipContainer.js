@@ -9,10 +9,10 @@ export class TipContainer {
         if (!document.getElementById(this.id)) {
             let div = document.createElement('div');
             div.id = this.id
-            div.style.background = '#fff';
-            div.style.border = '1px solid #bbb';
-            div.style.borderRadius = '5px'
-            div.style.boxShadow = "#888 0px 0px 4px 0";
+            div.style.background = '#f9f9f9';
+            div.style.border = '1px solid #888';
+            div.style.borderRadius = '3px'
+            div.style.boxShadow = "#888 0px 0px 3px 0";
             div.style.left = '-100000px';
             div.style.maxHeight = '500px';
             div.style.minHeight = '20px';

@@ -126,7 +126,7 @@ export class Positioner {
         const opts = Object.assign(
             {
                 'fits': ['t', 'r', 'b', 'l'],
-                'offset': 20,
+                'offset': 10,
                 'windowOffset': 5
             }
             , options ?? {}
