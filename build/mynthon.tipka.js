@@ -292,7 +292,7 @@ function _toPropertyKey(arg) {
     value: function attach(element, content, options) {
       var _this = this;
       element.addEventListener('mouseover', function (e) {
-        var xy = _this.positioner.getTooltipParameters(document.getElementById('test'), _this.container.getContainer(), {
+        var xy = _this.positioner.getTooltipParameters(element, _this.container.getContainer(), {
           'fits': ['l', 'r', 't', 'r', 'b', 'l']
         });
         if (typeof content === 'function') {

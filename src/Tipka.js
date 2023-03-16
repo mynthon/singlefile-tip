@@ -20,7 +20,7 @@ export class Tipka {
     attach(element, content, options) {
         element.addEventListener('mouseover', (e) => {
             const xy = this.positioner.getTooltipParameters(
-                document.getElementById('test'),
+                element,
                 this.container.getContainer(),
                 {
                     'fits': ['l', 'r', 't', 'r', 'b', 'l'],
