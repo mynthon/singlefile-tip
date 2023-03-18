@@ -5,6 +5,7 @@
     <style>
         #container {border: 1px solid red; display: block; width: 400px; height: 500px; overflow: scroll;}
         #test {background-color: aquamarine; padding: 10px; width: 50%;}
+        #test2 {background-color: violet; padding: 10px; width: 50%;}
     </style>
   <body>
     <h1>Welcome to my webpage</h1>
@@ -25,7 +26,9 @@
             Lorem ipsum lorem </p>
             <p id="test">test text</p>
             <p> loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsum
-            Lorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsum
+            Lorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum</p>
+            <p id="test2">test text</p>
+            <p>loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsum
             Lorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsum
             Lorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsum
             Lorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsumLorem ipsum lorem ipsum loremipsum
@@ -56,12 +59,13 @@
 
 <div id="sample">This is sample div (html element)</div>
 
-    <script type="text/javascript" src="mynthon.tipka.js"></script>
+    <script type="text/javascript" src="mynthon.tipka.min.wrapped.js"></script>
     <script>
       const t = new net_mynthon_tipka.Tipka();
       //t.attach(document.getElementById('test'), 'testing text is testing.')
 
-      t.attach(document.getElementById('test'), document.querySelector('#sample'));
+      t.attach(document.getElementById('test'), {content: document.querySelector('#sample')});
+      t.attach(document.getElementById('test2'), {content: 'Test 2 text'});
     </script>
   </body>
 </html>

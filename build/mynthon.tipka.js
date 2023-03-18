@@ -199,34 +199,30 @@ function _toPropertyKey(arg) {
     _classCallCheck(this, TipContainer);
     this.div = null;
     this.id = new Date().getTime() + '' + Math.round(Math.random() * 10000);
-    this.rollOutTimeoutId = null;
   }
   _createClass(TipContainer, [{
     key: "init",
     value: function init() {
-      var _this = this;
       if (!document.getElementById(this.id)) {
         var div = document.createElement('div');
         div.id = this.id;
-        div.style.background = '#f9f9f9';
-        div.style.border = '1px solid #888';
-        div.style.borderRadius = '3px';
-        div.style.boxShadow = "#888 0px 0px 3px 0";
-        div.style.left = '-100000px';
-        div.style.maxHeight = '500px';
-        div.style.minHeight = '20px';
-        div.style.opacity = 0;
-        div.style.overflow = 'auto';
-        div.style.padding = "6px";
-        div.style.position = 'absolute';
-        div.style.top = '-100000px';
-        div.style.width = '400px';
-        div.style.zIndex = 10000;
-        div.addEventListener('mouseenter', function (e) {
-          clearTimeout(_this.rollOutTimeoutId);
-        });
-        div.addEventListener('mouseleave', function (e) {
-          _this.delayedClose();
+        this.setStyles(div, {
+          background: '#f9f9f9',
+          border: '1px solid #888',
+          borderRadius: '3px',
+          boxShadow: "#888 0px 0px 3px 0",
+          left: '-100000px',
+          maxHeight: '500px',
+          minHeight: '20px',
+          opacity: 0,
+          overflow: 'auto',
+          padding: "6px",
+          position: 'absolute',
+          top: '-100000px',
+          transition: 'opacity 200ms',
+          minWidth: '100px',
+          maxWidth: '600px',
+          zIndex: 10000
         });
         document.querySelector('body').appendChild(div);
         this.div = div;
@@ -234,29 +230,36 @@ function _toPropertyKey(arg) {
       return this;
     }
   }, {
+    key: "setStyles",
+    value: function setStyles(target) {
+      var stylesObject = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      Object.keys(stylesObject).forEach(function (rule) {
+        target.style[rule] = stylesObject[rule];
+      });
+    }
+  }, {
     key: "open",
     value: function open(x, y) {
-      clearTimeout(this.rollOutTimeoutId);
       var div = this.init().getContainer();
-      div.style.left = x + 'px';
-      div.style.top = y + 'px';
-      div.style.opacity = 1;
+      div.classList.add('tipka-opened');
+      this.setStyles(div, {
+        left: x + 'px',
+        top: y + 'px',
+        opacity: 1
+      });
       return this;
     }
   }, {
     key: "close",
     value: function close() {
       var div = this.init().getContainer();
-      div.style.left = '-100000px';
-      div.style.top = '-100000px';
-      div.style.opacity = 0;
+      div.classList.remove('tipka-opened');
+      this.setStyles(div, {
+        left: '-100000px',
+        top: '-100000px',
+        opacity: 0
+      });
       return this;
-    }
-  }, {
-    key: "delayedClose",
-    value: function delayedClose(delayMs) {
-      delayMs = typeof delayMs === 'number' && delayMs >= 0 ? delayMs : 100;
-      this.rollOutTimeoutId = setTimeout(this.close.bind(this), delayMs);
     }
   }, {
     key: "setContent",
@@ -264,7 +267,9 @@ function _toPropertyKey(arg) {
       if (typeof content === 'string') {
         this.init().getContainer().innerHTML = content;
       } else if (content instanceof HTMLElement) {
-        this.init().getContainer().appendChild(content);
+        var container = this.init().getContainer();
+        container.innerHTML = '';
+        container.appendChild(content);
       }
     }
   }, {
@@ -276,40 +281,79 @@ function _toPropertyKey(arg) {
   return TipContainer;
 }();var Tipka = /*#__PURE__*/function () {
   function Tipka() {
+    var _this = this;
     _classCallCheck(this, Tipka);
     this.container = new TipContainer();
     this.positioner = new Positioner();
-    this.options = {};
+    this._rollOutCloseDelayTimeoutId = null;
+    this.trigger = null;
+    this._opts = {
+      'fits': ['r', 't', 'b', 'l']
+    };
+    var divContainer = this.container.init().getContainer();
+    divContainer.addEventListener('mouseenter', function (e) {
+      clearTimeout(_this._rollOutCloseDelayTimeoutId);
+    });
+    divContainer.addEventListener('mouseleave', function (e) {
+      _this.close();
+    });
   }
   _createClass(Tipka, [{
-    key: "setOptions",
-    value: function setOptions(options) {
-      this.options = Object.assign(this.options, options !== null && options !== void 0 ? options : {});
+    key: "setDefaults",
+    value: function setDefaults(options) {
+      this._opts = Object.assign(this._opts, options !== null && options !== void 0 ? options : {});
       return this;
     }
   }, {
     key: "attach",
-    value: function attach(element, content, options) {
-      var _this = this;
-      element.addEventListener('mouseover', function (e) {
-        var xy = _this.positioner.getTooltipParameters(element, _this.container.getContainer(), {
-          'fits': ['l', 'r', 't', 'r', 'b', 'l']
-        });
-        if (typeof content === 'function') {
-          content(_this);
-        } else {
-          _this.container.setContent(content);
-        }
-        _this.container.open(xy.x, xy.y);
+    value: function attach(trigger) {
+      var _this2 = this;
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      trigger.tipkaOpts = options;
+      trigger.addEventListener('mouseover', function (e) {
+        _this2.open(trigger);
       });
-      element.addEventListener('mouseout', function (e) {
-        _this.container.delayedClose();
+      trigger.addEventListener('mouseout', function (e) {
+        _this2.delayedClose();
       });
+      return this;
+    }
+  }, {
+    key: "open",
+    value: function open(trigger) {
+      clearTimeout(this._rollOutCloseDelayTimeoutId);
+      this.trigger = trigger;
+      var content = this.getOpt(trigger, 'content', null);
+      var xy = this.positioner.getTooltipParameters(trigger, this.container.getContainer(), {
+        'fits': this.getOpt(trigger, 'fits', null)
+      });
+      if (typeof content === 'function') {
+        content(this);
+      } else {
+        this.container.setContent(content);
+      }
+      this.container.open(xy.x, xy.y);
+    }
+  }, {
+    key: "close",
+    value: function close() {
+      this.container.close();
+    }
+  }, {
+    key: "delayedClose",
+    value: function delayedClose(delayMs) {
+      delayMs = typeof delayMs === 'number' && delayMs >= 0 ? delayMs : 100;
+      this._rollOutCloseDelayTimeoutId = setTimeout(this.close.bind(this), delayMs);
     }
   }, {
     key: "setText",
     value: function setText(content) {
       this.container.setContent(content);
+    }
+  }, {
+    key: "getOpt",
+    value: function getOpt(trigger, option, defaultVal) {
+      return trigger.tipkaOpts[option] || this._opts[option] || defaultVal;
     }
   }]);
   return Tipka;

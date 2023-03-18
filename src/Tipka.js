@@ -5,43 +5,78 @@ export class Tipka {
     constructor() {
         this.container = new TipContainer();
         this.positioner = new Positioner();
-        this.options = {};
+        this._rollOutCloseDelayTimeoutId = null;
+        this.trigger = null;
+        this._opts = {
+            'fits': ['r', 't', 'b', 'l']
+        };
+        const divContainer = this.container.init().getContainer();
+
+        divContainer.addEventListener('mouseenter', (e) => {
+            clearTimeout(this._rollOutCloseDelayTimeoutId);
+        })
+
+        divContainer.addEventListener('mouseleave', (e) => {
+            this.close();
+        })
     }
 
-    setOptions(options) {
-        this.options = Object.assign(
-            this.options,
-            options ?? {}
-        );
+    setDefaults(options) {
+        this._opts = Object.assign(this._opts, options ?? {});
 
         return this;
     }
 
-    attach(element, content, options) {
-        element.addEventListener('mouseover', (e) => {
-            const xy = this.positioner.getTooltipParameters(
-                element,
-                this.container.getContainer(),
-                {
-                    'fits': ['l', 'r', 't', 'r', 'b', 'l'],
-                }
-            );
+    attach(trigger, options = {}) {
+        trigger.tipkaOpts = options;
 
-            if (typeof content === 'function') {
-                content(this);
-            } else {
-                this.container.setContent(content);
+        trigger.addEventListener('mouseover', (e) => {
+            this.open(trigger);
+        });
+
+        trigger.addEventListener('mouseout', (e) => {
+            this.delayedClose();
+        });
+
+        return this;
+    }
+
+    open(trigger) {
+        clearTimeout(this._rollOutCloseDelayTimeoutId);
+
+        this.trigger = trigger;
+        const content = this.getOpt(trigger, 'content', null);
+        const xy = this.positioner.getTooltipParameters(
+            trigger,
+            this.container.getContainer(),
+            {
+                'fits':  this.getOpt(trigger, 'fits', null),
             }
+        );
 
-            this.container.open(xy.x, xy.y);
-        });
+        if (typeof content === 'function') {
+            content(this);
+        } else {
+            this.container.setContent(content);
+        }
 
-        element.addEventListener('mouseout', (e) => {
-           this.container.delayedClose();
-        });
+        this.container.open(xy.x, xy.y);
+    }
+
+    close() {
+        this.container.close();
+    }
+
+    delayedClose(delayMs) {
+        delayMs = typeof(delayMs) === 'number' && delayMs >= 0 ? delayMs : 100;
+        this._rollOutCloseDelayTimeoutId = setTimeout(this.close.bind(this), delayMs)
     }
 
     setText(content) {
         this.container.setContent(content);
+    }
+
+    getOpt(trigger, option, defaultVal) {
+        return trigger.tipkaOpts[option] || this._opts[option] || defaultVal;
     }
 }
