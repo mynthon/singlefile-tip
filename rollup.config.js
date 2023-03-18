@@ -1,5 +1,6 @@
 import babel from '@rollup/plugin-babel';
 import terser from '@rollup/plugin-terser';
+import WrapOutputLines from './rollup_plugin/rollup-plugin-wrap-output-lines.js';
 
 export default {
   input: 'src/Tipka.js',
@@ -17,6 +18,16 @@ export default {
       compact: true,
       plugins: [
         terser()
+      ],
+    },
+    {
+      file: 'build/mynthon.tipka.min.wrapped.js',
+      format: 'iife',
+      name: 'net_mynthon_tipka',
+      compact: true,
+      plugins: [
+        terser(),
+        WrapOutputLines()
       ],
     },
   ],
