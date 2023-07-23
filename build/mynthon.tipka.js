@@ -196,9 +196,28 @@ function _toPropertyKey(arg) {
   return Positioner;
 }();var TipContainer = /*#__PURE__*/function () {
   function TipContainer(options) {
+    var _options$divCss;
     _classCallCheck(this, TipContainer);
     this.div = null;
     this.id = new Date().getTime() + '' + Math.round(Math.random() * 10000);
+    this.divCss = Object.assign({
+      background: '#f9f9f9',
+      border: '1px solid #888',
+      borderRadius: '3px',
+      boxShadow: "#888 0px 0px 3px 0",
+      left: '-100000px',
+      maxHeight: '500px',
+      minHeight: '20px',
+      opacity: 0,
+      overflow: 'auto',
+      padding: "6px",
+      position: 'absolute',
+      top: '-100000px',
+      transition: 'opacity 200ms',
+      minWidth: '100px',
+      maxWidth: '600px',
+      zIndex: 10000
+    }, (_options$divCss = options === null || options === void 0 ? void 0 : options.divCss) !== null && _options$divCss !== void 0 ? _options$divCss : {});
   }
   _createClass(TipContainer, [{
     key: "init",
@@ -206,24 +225,7 @@ function _toPropertyKey(arg) {
       if (!document.getElementById(this.id)) {
         var div = document.createElement('div');
         div.id = this.id;
-        this.setStyles(div, {
-          background: '#f9f9f9',
-          border: '1px solid #888',
-          borderRadius: '3px',
-          boxShadow: "#888 0px 0px 3px 0",
-          left: '-100000px',
-          maxHeight: '500px',
-          minHeight: '20px',
-          opacity: 0,
-          overflow: 'auto',
-          padding: "6px",
-          position: 'absolute',
-          top: '-100000px',
-          transition: 'opacity 200ms',
-          minWidth: '100px',
-          maxWidth: '600px',
-          zIndex: 10000
-        });
+        this.setStyles(div, this.divCss);
         document.querySelector('body').appendChild(div);
         this.div = div;
       }
@@ -280,16 +282,29 @@ function _toPropertyKey(arg) {
   }]);
   return TipContainer;
 }();var Tipka = /*#__PURE__*/function () {
-  function Tipka() {
-    var _this = this;
+  /**
+   *
+   * @param {*} options Configuration options.
+   * @param {Array} options.fits Preffered position for tooltip. Can be 't', 'r', 'b', 'l'.
+   * @param {Object} options.containerCss Object with additional stylec for tooltip.
+   * @param {*} options.content Content to be displayed. It can be string or HTMLElement.
+   */
+  function Tipka(options) {
+    var _options$fits,
+      _options$content,
+      _options$containerCss,
+      _this = this;
     _classCallCheck(this, Tipka);
-    this.container = new TipContainer();
+    this._opts = {
+      'fits': (_options$fits = options === null || options === void 0 ? void 0 : options.fits) !== null && _options$fits !== void 0 ? _options$fits : ['r', 't', 'b', 'l'],
+      'content': (_options$content = options === null || options === void 0 ? void 0 : options.content) !== null && _options$content !== void 0 ? _options$content : '' // to be fixed with tooltip function
+    };
+
+    this.container = new TipContainer({
+      divCss: (_options$containerCss = options === null || options === void 0 ? void 0 : options.containerCss) !== null && _options$containerCss !== void 0 ? _options$containerCss : {}
+    });
     this.positioner = new Positioner();
     this._rollOutCloseDelayTimeoutId = null;
-    this.trigger = null;
-    this._opts = {
-      'fits': ['r', 't', 'b', 'l']
-    };
     var divContainer = this.container.init().getContainer();
     divContainer.addEventListener('mouseenter', function (e) {
       clearTimeout(_this._rollOutCloseDelayTimeoutId);
@@ -298,40 +313,62 @@ function _toPropertyKey(arg) {
       _this.close();
     });
   }
+
+  /**
+   *
+   * @param {*} options Configuration options
+   * @param {Array} options.fits Preffered position for tooltip. Can be 't', 'r', 'b', 'l'
+   * @param {Object} options.containerCss Object with additional stylec for tooltip
+   */
   _createClass(Tipka, [{
-    key: "setDefaults",
-    value: function setDefaults(options) {
+    key: "setOptions",
+    value: function setOptions(options) {
       this._opts = Object.assign(this._opts, options !== null && options !== void 0 ? options : {});
       return this;
     }
+
+    /**
+     * Attaches tooltip to trigger.
+     *
+     * @param {*} trigger Element that triggers tooltip;
+     * @param {*} options See constructor options;
+     * @returns
+     */
   }, {
     key: "attach",
-    value: function attach(trigger) {
+    value: function attach(trigger, options) {
       var _this2 = this;
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-      trigger.tipkaOpts = options;
+      // @todo: support for title attribute ahould be addes moewhere here
       trigger.addEventListener('mouseover', function (e) {
-        _this2.open(trigger);
+        _this2.open(trigger, options);
       });
       trigger.addEventListener('mouseout', function (e) {
         _this2.delayedClose();
       });
       return this;
     }
+
+    /**
+     * Open tooltip for trigger.
+     *
+     * @param {*} trigger Element that triggers tooltip;
+     * @param {*} options See constructor options;
+     * @returns
+     */
   }, {
     key: "open",
-    value: function open(trigger) {
+    value: function open(trigger, options) {
+      trigger.tipkaOpts = options;
       clearTimeout(this._rollOutCloseDelayTimeoutId);
-      this.trigger = trigger;
       var content = this.getOpt(trigger, 'content', null);
-      var xy = this.positioner.getTooltipParameters(trigger, this.container.getContainer(), {
-        'fits': this.getOpt(trigger, 'fits', null)
-      });
       if (typeof content === 'function') {
-        content(this);
+        content(this, trigger);
       } else {
         this.container.setContent(content);
       }
+      var xy = this.positioner.getTooltipParameters(trigger, this.container.getContainer(), {
+        'fits': this.getOpt(trigger, 'fits', null)
+      });
       this.container.open(xy.x, xy.y);
     }
   }, {
